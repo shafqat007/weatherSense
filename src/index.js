@@ -35,7 +35,7 @@ const FetchData = () => {
       <Image blurRadius={70}source={require('../assets/images/bg.png')}
  className = 'absolute h-full w-full' 
   />    
-      <Text style={[styles.header, { fontFamily: 'YourFontNameRegular' }]}>WeatherApp</Text>
+      <Text style={[styles.header, { fontFamily: 'YourFontNameRegular' }]}>WeatherAp</Text>
       {data && (
         <View style={styles.dataContainer}>
           {/* Display data */}
