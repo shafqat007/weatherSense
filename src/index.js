@@ -97,18 +97,30 @@ const FetchData = ({ navigation }) => {
       )}
       {weather && (
         <View style={styles.dataContainer}>
-          <Text style={[styles.text, { fontFamily: 'rakkas-regular' }]}>City: {weather.name}</Text>
-          <Text style={[styles.text, { fontFamily: 'rakkas-regular' }]}>Temperature: {weather.main.temp} °C</Text>
-          <Text style={[styles.text, { fontFamily: 'rakkas-regular' }]}>Humidity: {weather.main.humidity}%</Text>
-          <Text style={[styles.text, { fontFamily: 'rakkas-regular' }]}>Weather: {weather.weather[0].description}</Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' , }]}>City: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{weather.name}</Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' ,  }]}>Temperature: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{weather.main.temp}°C</Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{weather.main.humidity}%</Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular'  }]}>Weather: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{weather.weather[0].description}</Text>
           {renderWeatherIcon(weather.weather[0].main)}
+
+         
         </View>
+
+
+
+
       )}
       {data && (
         <View style={styles.dataContainer}>
-          <Text style={[styles.text, { fontFamily: 'rakkas-regular' }]}>Sensor: </Text>
-          <Text style={[styles.text, { fontFamily: 'rakkas-regular' }]}>Temperature: {data.Temperature}</Text>
-          <Text style={[styles.text, { fontFamily: 'rakkas-regular' }]}>Humidity: {data.Humidity}</Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Sensor: </Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' ,  }]}>Temperature: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{data.Temperature}°C</Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' ,  }]}>Humidity: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{data.Humidity}%</Text>
         </View>
       )}
     </ScrollView>
@@ -179,11 +191,27 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
+    
   },
   text: {
     fontSize: 20,
     textAlign: 'center',
     marginTop: 10,
     color: 'cyan',
+    flexDirection: 'row'
+  },
+  label: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 10,
+    color:'white',
+    flexDirection: 'row'
+  },
+  data: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 10,
+    color:'cyan',
+    flexDirection: 'row'
   },
 });
