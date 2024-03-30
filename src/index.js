@@ -38,7 +38,7 @@ const FetchData = ({ navigation }) => {
       const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
       const response = await axios.get(apiUrl);
       setWeather(response.data);
-      navigation.navigate('WeatherDetail');
+     
     } catch (error) {
       console.error('Error fetching weather data:', error);
     }
@@ -47,17 +47,17 @@ const FetchData = ({ navigation }) => {
   const renderWeatherIcon = (condition) => {
     switch (condition) {
       case 'Clear':
-        return <Ionicons name="sunny-outline" size={32} color="yellow" />;
+        return <Ionicons name="sunny-outline" size={150} color="yellow" />;
       case 'Clouds':
-        return <Ionicons name="cloudy-outline" size={32} color="gray" />;
+        return <Ionicons name="cloudy-outline" size={150} color="gray" />;
       case 'Rain':
-        return <Ionicons name="rainy-outline" size={32} color="blue" />;
+        return <Ionicons name="rainy-outline" size={150} color="blue" />;
       case 'Thunderstorm':
-        return <Ionicons name="thunderstorm-outline" size={32} color="purple" />;
+        return <Ionicons name="thunderstorm-outline" size={150} color="purple" />;
       case 'Snow':
-        return <Ionicons name="snow-outline" size={32} color="white" />;
+        return <Ionicons name="snow-outline" size={150} color="white" />;
       default:
-        return <Ionicons name="partly-sunny-outline" size={32} color="gray" />;
+        return <Ionicons name="partly-sunny-outline" size={150} color="gray" />;
     }
   };
 
@@ -73,14 +73,14 @@ const FetchData = ({ navigation }) => {
       <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>Weather App</Text>
       <View style={styles.searchContainer}>
         <TextInput
-          style={[styles.input, { color: 'white' }]}
+          style={[styles.input, { color: 'white',fontFamily: 'rakkas-regular'  }]}
           placeholder="Enter city name"
           placeholderTextColor="#D9D9D9"
           value={city}
           onChangeText={setCity}
         />
         <TouchableOpacity style={styles.searchButton} onPress={fetchWeatherData}>
-          <MaterialCommunityIcons name="arrow-right-circle" size={32} color="white" />
+          <MaterialCommunityIcons name="arrow-right-circle" size={32} color="cyan" />
         </TouchableOpacity>
       </View>
       {suggestions.length > 0 && (
@@ -97,17 +97,25 @@ const FetchData = ({ navigation }) => {
       )}
       {weather && (
         <View style={styles.dataContainer}>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' , }]}>City: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{weather.name}</Text>
+        
+          <View style={styles.headContainer}>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' , fontSize:24}]}>City: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular',fontSize:24 }]}>{weather.name}</Text>
+          </View>
+          
+         
           <Text style={[styles.label, { fontFamily: 'rakkas-regular' ,  }]}>Temperature: </Text>
           <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{weather.main.temp}°C</Text>
           <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
+         
           <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{weather.main.humidity}%</Text>
           <Text style={[styles.label, { fontFamily: 'rakkas-regular'  }]}>Weather: </Text>
           <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{weather.weather[0].description}</Text>
-          {renderWeatherIcon(weather.weather[0].main)}
-
+          
          
+          <View style={styles.weatherIcon}>
+    {renderWeatherIcon(weather.weather[0].main)}
+  </View>
         </View>
 
 
@@ -116,10 +124,13 @@ const FetchData = ({ navigation }) => {
       )}
       {data && (
         <View style={styles.dataContainer}>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Sensor: </Text>
+          <View style={styles.headContainer}>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' , fontSize:24}]}>Sensor Data: </Text>
+          </View>
           <Text style={[styles.label, { fontFamily: 'rakkas-regular' ,  }]}>Temperature: </Text>
           <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{data.Temperature}°C</Text>
           <Text style={[styles.label, { fontFamily: 'rakkas-regular' ,  }]}>Humidity: </Text>
+          
           <Text style={[styles.data, { fontFamily: 'rakkas-regular', }]}>{data.Humidity}%</Text>
         </View>
       )}
@@ -147,12 +158,13 @@ const styles = StyleSheet.create({
     fontSize: 40,
     textAlign: 'center',
     color: 'rgba(220, 250, 220, 0.9)',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 15,
+  
     width: '80%',
   },
   input: {
@@ -165,10 +177,10 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   searchButton: {
-    backgroundColor: '#3182CE',
-    padding: 5,
+    backgroundColor: 'gray',
+    padding: 4,
     borderRadius: 5,
-    marginLeft: -5,
+    marginLeft: -3,
   },
   suggestionsContainer: {
     width: '60%',
@@ -182,15 +194,30 @@ const styles = StyleSheet.create({
     color: 'black',
     borderRadius: 7,
   },
-  dataContainer: {
+  headContainer:{
     backgroundColor: 'rgba(70, 155, 130, 0.3)',
-    padding: 20,
-    width: '70%',
+    padding: 10,
+    width: '80%',
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 15,
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection:'row'
+  },
+  dataContainer: {
+    backgroundColor: 'rgba(70, 155, 130, 0.3)',
+    paddingLeft: 20,
+    paddingTop:20,
+    paddingBottom:20,
+    paddingRight:20,
+    width: '70%',
+    borderRadius: 10,
+    marginBottom: 15,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    position:"relative"
     
   },
   text: {
@@ -203,14 +230,24 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 20,
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 5,
     color:'white',
     flexDirection: 'row'
+  },
+  weatherIcon: {
+    position: 'absolute',
+    top: 100,
+    right: 15,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+
   },
   data: {
     fontSize: 20,
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 5,
     color:'cyan',
     flexDirection: 'row'
   },
