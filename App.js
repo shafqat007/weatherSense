@@ -1,30 +1,24 @@
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import FetchData from './src/index';
+import Credit from './src/Credit';
 
-
-
-import { StyleSheet,View } from 'react-native';
-
-import FetchData from './src';
-
-
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-     
-      <FetchData/>
-     
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="FetchData"
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right', // Custom animation name
+        }}
+      >
+        <Stack.Screen name="FetchData" component={FetchData} />
+        <Stack.Screen name="Credit" component={Credit} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-
 }
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex:1,
-    backgroundColor: 'rgba(220, 255, 255, 0.9)',
- 
-    justifyContent: 'center',
-  },
-
-});

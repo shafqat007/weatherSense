@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Font from 'expo-font';
 import { ref, onValue } from 'firebase/database';
 import axios from 'axios';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import { db } from '../config';
 
 const FetchData = ({ navigation }) => {
@@ -86,9 +86,16 @@ const FetchData = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      
       <Image blurRadius={70} source={require('../assets/images/bg.png')} style={styles.backgroundImage} />
       <StatusBar style="light" />
-      <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>Weather App</Text>
+      <TouchableOpacity style={styles.creditButton} onPress={() => navigation.navigate('Credit')}>
+          <Image style={styles.creditIcon} source={require('../assets/images/icons8-forward-150.png')} />
+        </TouchableOpacity>
+      <View style={styles.headerContainer}>
+        <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>weatherSense</Text>
+        
+      </View>
       <View style={styles.searchContainer}>
         <TextInput
           style={[styles.input, { color: 'white', fontFamily: 'rakkas-regular' }]}
@@ -98,8 +105,10 @@ const FetchData = ({ navigation }) => {
           onChangeText={handleInputChange}
         />
         <TouchableOpacity style={styles.searchButton} onPress={() => fetchWeatherData(city)}>
-          <MaterialCommunityIcons name="arrow-right-circle" size={32} color="cyan" />
+        <Image style={{ height: 40, width: 40 }} source={require('../assets/images/icons8-search-96.png')} />
+
         </TouchableOpacity>
+
       </View>
       <View style={styles.suggestionsContainer}>
         {suggestions.map((item, index) => (
@@ -156,39 +165,58 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
   },
+ headerContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center', // Add this line to center the items horizontally
+  marginBottom: 10,
+},
   header: {
     fontSize: 40,
     textAlign: 'center',
     color: 'rgba(220, 250, 220, 0.9)',
-    marginBottom: 10,
+    fontFamily: 'rakkas-regular',
+    marginRight: 'auto',
+  },
+  creditButton: {
+    position:'absolute',
+    top:63,
+    right:10,
+    padding: 4,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  creditIcon: {
+    width: 30,
+    height: 30,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center', // Align horizontally to the center
     marginBottom: 15,
-    width: '80%',
+    width: '75%',
+    borderBottomWidth: 1, // Add a border only at the bottom
+    borderBottomColor: 'white', // Color of the border
+    paddingBottom: 5, // Padding at the bottom to separate the line from the text
   },
   input: {
     flex: 1,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
+    height: 40, // Set height back to 40
     paddingHorizontal: 10,
-    marginRight: 10,
     color: 'white',
   },
   searchButton: {
-    backgroundColor: 'rgba(220, 250, 220, 0.3)',
-    padding: 4,
-    borderRadius: 5,
-    marginLeft: -3,
+    padding: 2,
+    marginLeft: -7,
   },
   suggestionsContainer: {
     width: '60%',
     marginBottom: 10,
+    
   },
   suggestion: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(220, 220, 230, 0.4)',
     padding: 10,
     marginBottom: 4,
     fontSize: 16,
@@ -198,7 +226,7 @@ const styles = StyleSheet.create({
   headContainer: {
     backgroundColor: 'rgba(70, 155, 130, 0.3)',
     padding: 10,
-    width: '80%',
+    width: 'auto',
     borderRadius: 10,
     marginBottom: 15,
     alignSelf: 'center',
