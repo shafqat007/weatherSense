@@ -24,6 +24,7 @@ const Credit = ({ navigation }) => {
   }, []);
 
   return (
+    
     <View style={styles.container}>
       <Image blurRadius={70} source={require('../assets/images/bg.png')} style={styles.backgroundImage} />
       

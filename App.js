@@ -13,7 +13,7 @@ export default function App() {
         initialRouteName="FetchData"
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right', // Custom animation name
+          animation: 'slide_from_right', 
         }}
       >
         <Stack.Screen name="FetchData" component={FetchData} />
