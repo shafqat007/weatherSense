@@ -149,6 +149,18 @@ const FetchData = ({ navigation }) => {
         </View>
       )}
 
+{data && (
+        <View style={styles.dataContainer}>
+          <View style={styles.headContainer}>
+            <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Sensor Data: </Text>
+          </View>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Temperature}°C</Text>
+          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Humidity}%</Text>
+        </View>
+      )}
+
 
 {data && (
         <View style={styles.dataContainer}>
