@@ -96,7 +96,7 @@ const FetchData = ({ navigation }) => {
           <Image style={styles.creditIcon} source={require('../assets/images/icons8-forward-150.png')} />
         </TouchableOpacity>
       <View style={styles.headerContainer}>
-        <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>weatherSense</Text>
+        <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>weaterSense</Text>
         
       </View>
       <View style={styles.searchContainer}>
