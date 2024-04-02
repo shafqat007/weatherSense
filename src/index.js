@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Font from 'expo-font';
 import { ref, onValue } from 'firebase/database';
 import axios from 'axios';
+import LottieView from 'lottie-react-native';
 
 import { db } from '../config';
 
@@ -12,6 +13,8 @@ const FetchData = ({ navigation }) => {
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
+  const [nightOnTop, setNightOnTop] = useState(false);
+  const [color, setColor] = useState('white');
 
   useEffect(() => {
     async function loadFont() {
@@ -42,6 +45,11 @@ const FetchData = ({ navigation }) => {
     }
   };
 
+  const toggleContainersOrder = () => {
+    setNightOnTop(!nightOnTop);
+    setColor(color === 'white' ? 'white' : 'white');
+  };
+
   const fetchCitySuggestions = async (text) => {
     try {
       const apiKey = '8d8fa321cd36e00ed12bb916c5b054a9';
@@ -68,9 +76,9 @@ const FetchData = ({ navigation }) => {
   const renderWeatherIcon = (condition) => {
     switch (condition) {
       case 'Clear':
-        return <Image style={{ width: 150, height: 150 }} source={require('../assets/images/icons8-sun-240.png')} />;
+        return <Image style={{ width: 50, height: 150 }} source={require('../assets/images/icons8-sun-240.png')} />;
       case 'Clouds':
-        return <Image style={{ width: 150, height: 150 }} source={require('../assets/images/icons8-partly-cloudy-day-240.png')} />;
+        return <Image style={{ width: 70, height: 70 }} source={require('../assets/images/icons8-partly-cloudy-day-240.png')} />;
       case 'Rain':
         return <Image style={{ width: 150, height: 150 }} source={require('../assets/images/icons8-wet-240.png')} />;
       case 'Thunderstorm':
@@ -78,7 +86,9 @@ const FetchData = ({ navigation }) => {
       case 'Snow':
         return <Image style={{ width: 150, height: 150 }} source={require('../assets/images/icons8-snow-storm-240.png')} />;
       case 'Haze':
-        return <Image style={{ width: 150, height: 150 }} source={require('../assets/images/icons8-haze-240.png')} />;
+        return   <LottieView style={{
+          width:140,height:140,
+        } }source={require('../assets/icons8-haze.json')} autoPlay loop />
       default:
         return <Image style={{ width: 150, height: 150 }} source={require('../assets/images/icons8-windsock-240.png')} />;
     }
@@ -96,7 +106,7 @@ const FetchData = ({ navigation }) => {
           <Image style={styles.creditIcon} source={require('../assets/images/icons8-forward-150.png')} />
         </TouchableOpacity>
       <View style={styles.headerContainer}>
-        <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>weaterSense</Text>
+        <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>weatherSense</Text>
         
       </View>
       <View style={styles.searchContainer}>
@@ -121,21 +131,47 @@ const FetchData = ({ navigation }) => {
         ))}
       </View>
       {weather && (
-        <View style={styles.dataContainer}>
-          <View style={styles.headContainer}>
-            <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>City: </Text>
-            <Text style={[styles.data, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>{weather.name}</Text>
-          </View>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Weather: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
-          <View style={styles.weatherIcon}>
-            {renderWeatherIcon(weather.weather[0].main)}
-          </View>
+        <View style={styles.daynight}>
+  <TouchableOpacity onPress={toggleContainersOrder} style={styles.containerWrapper}>
+    <View style={[styles.containers, { backgroundColor: color }, nightOnTop ? styles.nightContainer : styles.dayContainer]}>
+      <View style={styles.headContainer}>
+      <LottieView style={{
+          width:40,height:40,
+        } }source={require('../assets/icons8-sun.json')} autoPlay loop />
+      </View>
+      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
+      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
+      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
+      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
+      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Weather: </Text>
+      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
+      {nightOnTop ? null : (
+        <View style={styles.weatherIcon}>
+          {renderWeatherIcon(weather.weather[0].main)}
         </View>
+      )}
+    </View>
+    <View style={[styles.containers, nightOnTop ? styles.dayContainer : styles.nightContainer]}>
+      <View style={styles.headContainer}>
+      <LottieView style={{
+          width:40,height:40,
+        } }source={require('../assets/lottie.json')} autoPlay loop />
+      </View>
+      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Temp: </Text>
+      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
+      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>NightHum: </Text>
+      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
+      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>night Weather: </Text>
+      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
+      {nightOnTop ? (
+        <View style={styles.weatherIcon}>
+          {renderWeatherIcon(weather.weather[0].main)}
+        </View>
+      ) : null}
+    </View>
+  </TouchableOpacity>
+</View>
+
       )}
       {data && (
         <View style={styles.dataContainer}>
@@ -253,8 +289,8 @@ const styles = StyleSheet.create({
     borderRadius: 7,
   },
   headContainer: {
-    backgroundColor: 'rgba(70, 155, 130, 0.3)',
-    padding: 10,
+    // backgroundColor: 'rgba(70, 155, 130, 0.3)',
+    padding: 0,
     width: 'auto',
     borderRadius: 10,
     marginBottom: 15,
@@ -275,30 +311,111 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    position: "relative"
+
   },
+
+  daynight: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom:20
+  },
+  containerWrapper: {
+    flexDirection: 'row', // Stack containers vertically
+    paddingHorizontal: 10,
+    
+    zIndex:0,
+    elevation:10,
+    margin:20,
+    width:'70%'
+  },
+  containers: {
+    backgroundColor: 'rgba(0, 0, 0, 1)',
+    paddingHorizontal: 0,
+    paddingVertical: -20,
+    width:'10%',
+    borderRadius: 10,
+    marginBottom: -1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    elevation:5
+    
+  },
+  dayContainer: {
+    paddingTop:10,
+    paddingBottom:10,
+    flex: 3, // Occupies 2/3 of the available space
+marginHorizontal:-15,
+elevation:4,
+zIndex:2,
+alignItems:'flex-start',paddingLeft:10,
+  },
+
+  nightContainer: {
+textAlign:'right',
+    paddingTop:10,
+    paddingBottom:10,
+    paddingLeft:10,
+    flex: 1, // Occupies 1/3 of the available space
+    marginHorizontal:-15,
+    elevation:0,
+    alignItems:'flex-start'
+    
+  },
+  
+  daylabel: {
+    fontSize: 10,
+    textAlign: 'center',
+
+    color: 'black',
+    flexDirection: 'row'
+  },
+  nightlabel: {
+    fontSize: 10,
+    textAlign: 'center',
+
+    color: 'white',
+    flexDirection: 'row'
+  },
+  daydata: {
+    fontSize: 10,
+    textAlign: 'center',
+  
+    color: 'rgba(255, 0, 0, 1)',
+    flexDirection: 'row'
+  },
+
   label: {
-    fontSize: 20,
+    fontSize: 5,
     textAlign: 'center',
     marginTop: 5,
     color: 'white',
     flexDirection: 'row'
   },
-  weatherIcon: {
-    position: 'absolute',
-    height: 200,
-    width: '40%',
-    top: 110,
-    right: 40,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   data: {
-    fontSize: 20,
+    fontSize: 5,
     textAlign: 'center',
     marginTop: 5,
     color: 'cyan',
     flexDirection: 'row'
   },
+  nightdata: {
+    fontSize: 10,
+    textAlign: 'center',
+
+    color: 'cyan',
+    flexDirection: 'row'
+  },
+  weatherIcon: {
+    position: 'absolute',
+    height: 200,
+    width: '20%',
+    top: 40,
+    right: 30,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+   
+  },
+
 });
