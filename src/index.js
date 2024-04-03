@@ -186,7 +186,7 @@ const FetchData = ({ navigation }) => {
           width:40,height:40,
         } }source={require('../assets/icons8-sun.json')} autoPlay loop />
       </View>
-      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperatre: </Text>
+      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
       <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
       <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
       <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
