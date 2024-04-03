@@ -4,10 +4,10 @@
     "slug": "weatherapp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/weatherSense.png",
+    "icon": "./assets/weatherSense.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/weatherSense.png",
+      "image": "./assets/weatherSense.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,12 +19,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/weatherSense.png",
+        "foregroundImage": "./assets/weatherSense.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/images/weatherSense.png"
+      "favicon": "./assets/weatherSense.png"
     }
   }
 }
