@@ -1,20 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as Font from 'expo-font';
 import { ref, onValue } from 'firebase/database';
 import axios from 'axios';
 import LottieView from 'lottie-react-native';
+import MapView,{Marker} from 'react-native-maps';
+import * as Location from 'expo-location';
 
 import { db } from '../config';
 
 const FetchData = ({ navigation }) => {
   const [data, setData] = useState(null);
+  const [userWeather, setUserWeather] = useState(null);
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [nightOnTop, setNightOnTop] = useState(false);
   const [color, setColor] = useState('white');
+  const [mapRegion,setMapRegion] = useState({
+    latitude:24.3752,
+    longitude:91.8349,
+    latitudeDelta:0.05,
+    longitudeDelta:0.05
+
+  })
+  const [markerCoordinate, setMarkerCoordinate] = useState(null);
+  const clearMarker = () => {
+    setMarkerCoordinate(null);
+  };
+  const userLocation = async() =>{
+    let {status} = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted'){
+      setErrorMsg('Permission to access location was denied');
+    }
+
+    let location  = await Location.getCurrentPositionAsync({enableHighAccuracy: true});
+    setMapRegion({
+      latitude:location.coords.latitude,
+      longitude:location.coords.longitude,
+      latitudeDelta:0.05,
+      longitudeDelta:0.05
+    });
+    setMarkerCoordinate({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
+    console.log(location.coords.latitude,location.coords.longitude);
+    fetchWeatherDataByCoords(location.coords.latitude, location.coords.longitude);
+  }
+  const fetchWeatherDataByCoords = async (latitude, longitude) => {
+    try {
+      const apiKey = '8d8fa321cd36e00ed12bb916c5b054a9';
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+      const response = await axios.get(apiUrl);
+      setUserWeather(response.data); // Set user's weather data
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    }
+  };
+
 
   useEffect(() => {
     async function loadFont() {
@@ -61,7 +106,9 @@ const FetchData = ({ navigation }) => {
       console.error('Error fetching city suggestions:', error);
     }
   };
-
+  const handleGoBack = () => {
+    userLocation(); // Set user's current location as map region
+  };
   const handleInputChange = (text) => {
     setCity(text);
     fetchCitySuggestions(text);
@@ -185,30 +232,78 @@ const FetchData = ({ navigation }) => {
         </View>
       )}
 
-{data && (
-        <View style={styles.dataContainer}>
-          <View style={styles.headContainer}>
-            <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Sensor Data: </Text>
-          </View>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Temperature}°C</Text>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Humidity}%</Text>
-        </View>
-      )}
-
 
 {data && (
         <View style={styles.dataContainer}>
           <View style={styles.headContainer}>
+            <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Location: </Text>
+          </View>
+         <MapView style={styles.map} region={mapRegion}>
+         
+         {markerCoordinate && <Marker coordinate={markerCoordinate} title='Marker' />}
+         </MapView>
+        
+        <View style={styles.buttonmap}>
+          <Button title = 'Go Back' onPress={handleGoBack}/>
+           <Button title = 'CLear' onPress={clearMarker}/>
+         </View> 
+        </View>
+      )}
+ {userWeather && (
+        <View style={styles.daynight}>
+  <TouchableOpacity onPress={toggleContainersOrder} style={styles.containerWrapper}>
+    <View style={[styles.containers, { backgroundColor: color }, nightOnTop ? styles.nightContainer : styles.dayContainer]}>
+      <View style={styles.headContainer}>
+      <LottieView style={{
+          width:40,height:40,
+        } }source={require('../assets/icons8-sun.json')} autoPlay loop />
+      </View>
+      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
+      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
+      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
+      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.humidity}%</Text>
+      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Weather: </Text>
+      {/* <Text style={[styles.daydata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
+      {nightOnTop ? null : (
+        <View style={styles.weatherIcon}>
+          {renderWeatherIcon(weather.weather[0].main)}
+        </View>
+      )} */}
+    </View>
+    <View style={[styles.containers, nightOnTop ? styles.dayContainer : styles.nightContainer]}>
+      <View style={styles.headContainer}>
+      <LottieView style={{
+          width:40,height:40,
+        } }source={require('../assets/lottie.json')} autoPlay loop />
+      </View>
+      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Temp: </Text>
+      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
+      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>NightHum: </Text>
+      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.humidity}%</Text>
+      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>night Weather: </Text>
+      {/* <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
+      {nightOnTop ? (
+        <View style={styles.weatherIcon}>
+          {renderWeatherIcon(weather.weather[0].main)}
+        </View>
+      ) : null} */}
+    </View>
+  </TouchableOpacity>
+</View>
+
+      )}
+{/* 
+{ data && (
+   <View style={styles.dataContainer}>
+          <View style={styles.headContainer}>
             <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Sensor Data: </Text>
           </View>
           <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Temperature}°C</Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
           <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Humidity}%</Text>
+          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>%</Text>
         </View>
-      )}
+      )} */}
     </View>
     </ScrollView>
   );
@@ -242,6 +337,9 @@ const styles = StyleSheet.create({
     color: 'rgba(220, 250, 220, 0.9)',
     fontFamily: 'rakkas-regular',
     marginRight: 'auto',
+  },
+  buttonmap:{
+flexDirection:'row'
   },
   creditButton: {
     position:'absolute',
@@ -298,6 +396,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row'
+  },
+  map:{
+    width:Dimensions.get('window').width*0.6,
+    height:Dimensions.get('window').height*0.3
   },
   dataContainer: {
     backgroundColor: 'rgba(70, 155, 130, 0.3)',
