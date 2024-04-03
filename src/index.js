@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as Font from 'expo-font';
 import { ref, onValue } from 'firebase/database';
@@ -234,9 +234,9 @@ const FetchData = ({ navigation }) => {
 
 
 {data && (
-        <View style={styles.dataContainer}>
+        <View style={styles.locationContainer}>
           <View style={styles.headContainer}>
-            <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Location: </Text>
+           
           </View>
          <MapView style={styles.map} region={mapRegion}>
          
@@ -244,8 +244,18 @@ const FetchData = ({ navigation }) => {
          </MapView>
         
         <View style={styles.buttonmap}>
-          <Button title = 'Go Back' onPress={handleGoBack}/>
-           <Button title = 'CLear' onPress={clearMarker}/>
+        <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Location Weather:</Text>     
+        <TouchableOpacity style={styles.searchButton} onPress={clearMarker}>
+        <Image style={{ height: 30, width: 30 }} source={require('../assets/re.png')} />
+
+        </TouchableOpacity>
+       
+          <TouchableOpacity style={styles.searchButton} onPress={handleGoBack}>
+        <Image style={{ height: 40, width: 40 }} source={require('../assets/lo.png')} />
+
+        </TouchableOpacity>
+ 
+       
          </View> 
         </View>
       )}
@@ -339,7 +349,11 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
   },
   buttonmap:{
-flexDirection:'row'
+flexDirection:'row',
+justifyContent:'center',
+alignItems:'center',
+width:'100%',
+backgroundColor: 'rgba(220, 220, 230, 0)',
   },
   creditButton: {
     position:'absolute',
@@ -390,16 +404,18 @@ flexDirection:'row'
     // backgroundColor: 'rgba(70, 155, 130, 0.3)',
     padding: 0,
     width: 'auto',
-    borderRadius: 10,
-    marginBottom: 15,
+    borderRadius: 0,
+    marginBottom: 4,
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row'
   },
   map:{
-    width:Dimensions.get('window').width*0.6,
-    height:Dimensions.get('window').height*0.3
+    width:Dimensions.get('window').width*0.69,
+    height:Dimensions.get('window').height*0.3,
+    alignSelf: 'center',
+    borderRadius: 10, 
   },
   dataContainer: {
     backgroundColor: 'rgba(70, 155, 130, 0.3)',
@@ -410,6 +426,20 @@ flexDirection:'row'
     width: '70%',
     borderRadius: 10,
     marginBottom: 15,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+
+  },
+  locationContainer: {
+    backgroundColor: 'rgba(70, 155, 130, 0.3)',
+    paddingLeft: 2,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingRight: 2,
+    width: '72%',
+    borderRadius: 10,
+    marginBottom: -21,
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -443,6 +473,7 @@ flexDirection:'row'
     elevation:5
     
   },
+
   dayContainer: {
     paddingTop:10,
     paddingBottom:10,
