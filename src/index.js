@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(100, 20, 40, 0.9)',
     alignItems: 'center',
     paddingTop: 40,
-    paddingBottom: 120
+    paddingBottom: 150
   },
   dataContainer: {
     flex: 1,
