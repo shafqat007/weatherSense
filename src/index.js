@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as Font from 'expo-font';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, set } from 'firebase/database';
 import axios from 'axios';
 import LottieView from 'lottie-react-native';
-import MapView,{Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
 import { db } from '../config';
@@ -18,35 +18,65 @@ const FetchData = ({ navigation }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [nightOnTop, setNightOnTop] = useState(false);
   const [color, setColor] = useState('white');
-  const [mapRegion,setMapRegion] = useState({
-    latitude:24.3752,
-    longitude:91.8349,
-    latitudeDelta:0.05,
-    longitudeDelta:0.05
+  const [mapRegion, setMapRegion] = useState({
+    latitude: 24.3752,
+    longitude: 91.8349,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05
 
   })
+
+
+  const [email, setEmail] = useState('');
+  const [submissionMessage, setSubmissionMessage] = useState('');
+  //adding data realtime
+  const dataAddon = () => {
+    if (email.trim() !== '' && email.includes('@') && email.includes('.')) {
+      // Sanitize the email address to remove characters like "." and "@"
+      const sanitizedEmail = email.replace(/[.@]/g, '-');
+
+      // Save email to Firebase database
+      set(ref(db, 'All emails/' + sanitizedEmail), {
+        email: email,
+      })
+        .then(() => {
+          // Clear email input after successful submission
+          setEmail('');
+          setSubmissionMessage('Email submitted successfully!');
+        })
+        .catch((error) => {
+          console.error('Error submitting email:', error);
+          setSubmissionMessage('Error submitting email. Please try again.');
+        });
+    } else {
+      setSubmissionMessage('Please enter a valid email address');
+    }
+  };
+
+
+
   const [markerCoordinate, setMarkerCoordinate] = useState(null);
   const clearMarker = () => {
     setMarkerCoordinate(null);
   };
-  const userLocation = async() =>{
-    let {status} = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted'){
+  const userLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
       setErrorMsg('Permission to access location was denied');
     }
 
-    let location  = await Location.getCurrentPositionAsync({enableHighAccuracy: true});
+    let location = await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
     setMapRegion({
-      latitude:location.coords.latitude,
-      longitude:location.coords.longitude,
-      latitudeDelta:0.05,
-      longitudeDelta:0.05
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05
     });
     setMarkerCoordinate({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     });
-    console.log(location.coords.latitude,location.coords.longitude);
+    console.log(location.coords.latitude, location.coords.longitude);
     fetchWeatherDataByCoords(location.coords.latitude, location.coords.longitude);
   }
   const fetchWeatherDataByCoords = async (latitude, longitude) => {
@@ -124,249 +154,283 @@ const FetchData = ({ navigation }) => {
     switch (condition) {
       case 'Clear':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-sun.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-sun.json')} autoPlay loop />
       case 'Clouds':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-partly-cloudy-day.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-partly-cloudy-day.json')} autoPlay loop />
       case 'Rain':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-rain.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-rain.json')} autoPlay loop />
       case 'Thunderstorm':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-cloud-lightning.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-cloud-lightning.json')} autoPlay loop />
       case 'Snow':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-snow-storm.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-snow-storm.json')} autoPlay loop />
       case 'Haze':
-        return   <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/icons8-haze.json')} autoPlay loop />
+        return <LottieView style={{
+          width: 140, height: 140,
+        }} source={require('../assets/icons8-haze.json')} autoPlay loop />
       default:
-        return  <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/icons8-haze.json')} autoPlay loop />
+        return <LottieView style={{
+          width: 140, height: 140,
+        }} source={require('../assets/icons8-haze.json')} autoPlay loop />
     }
   };
   const renderuserWeatherIcon = (condition) => {
     switch (condition) {
       case 'Clear':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-sun.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-sun.json')} autoPlay loop />
       case 'Clouds':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-partly-cloudy-day.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-partly-cloudy-day.json')} autoPlay loop />
       case 'Rain':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-rain.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-rain.json')} autoPlay loop />
       case 'Thunderstorm':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-cloud-lightning.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-cloud-lightning.json')} autoPlay loop />
       case 'Snow':
         return <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/images/icons8-snow-storm.json')} autoPlay loop />
+          width: 140, height: 140,
+        }} source={require('../assets/images/icons8-snow-storm.json')} autoPlay loop />
       case 'Haze':
-        return   <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/icons8-haze.json')} autoPlay loop />
+        return <LottieView style={{
+          width: 140, height: 140,
+        }} source={require('../assets/icons8-haze.json')} autoPlay loop />
       default:
-        return  <LottieView style={{
-          width:140,height:140,
-        } }source={require('../assets/icons8-haze.json')} autoPlay loop />
+        return <LottieView style={{
+          width: 140, height: 140,
+        }} source={require('../assets/icons8-haze.json')} autoPlay loop />
     }
   };
 
   return (
-    
+
     <ScrollView>
-     
-      
-    <View style={styles.container}>
-      
-      <Image blurRadius={70} source={require('../assets/images/bg.png')} style={styles.backgroundImage} />
-      <StatusBar style="light" />
-      <TouchableOpacity style={styles.creditButton} onPress={() => navigation.navigate('Credit')}>
+
+
+      <View style={styles.container}>
+
+        <Image blurRadius={70} source={require('../assets/images/bg.png')} style={styles.backgroundImage} />
+        <StatusBar style="light" />
+        <TouchableOpacity style={styles.creditButton} onPress={() => navigation.navigate('Credit')}>
           <Image style={styles.creditIcon} source={require('../assets/images/icons8-forward-150.png')} />
         </TouchableOpacity>
-      <View style={styles.headerContainer}>
-        <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>weatherSense</Text>
-        
-      </View>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={[styles.input, { color: 'white', fontFamily: 'rakkas-regular' }]}
-          placeholder="Enter city name"
-          placeholderTextColor="#D9D9D9"
-          value={city}
-          onChangeText={handleInputChange}
-        />
-        <TouchableOpacity style={styles.searchButton} onPress={() => fetchWeatherData(city)}>
-        <Image style={{ height: 40, width: 40 }} source={require('../assets/images/icons8-search-96.png')} />
+        <View style={styles.headerContainer}>
+          <Text style={[styles.header, { fontFamily: 'rakkas-regular' }]}>weatherSense</Text>
 
-        </TouchableOpacity>
+        </View>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={[styles.input, { color: 'white' }]}
+            placeholder="Enter city name"
+            placeholderTextColor="#D9D9D9"
+            value={city}
+            onChangeText={handleInputChange}
+          />
+          <TouchableOpacity style={styles.searchButton} onPress={() => fetchWeatherData(city)}>
+            <Image style={{ height: 40, width: 40 }} source={require('../assets/images/icons8-search-96.png')} />
 
-      </View>
-      <View style={styles.suggestionsContainer}>
-        {suggestions.map((item, index) => (
-          <TouchableOpacity key={index} onPress={() => handleSuggestionPress(item)}>
-            <Text style={styles.suggestion}>{item}</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-      {weather && (
-        <View style={styles.daynight}>
-  <TouchableOpacity onPress={toggleContainersOrder} style={styles.containerWrapper}>
-    <View style={[styles.containers, { backgroundColor: color }, nightOnTop ? styles.nightContainer : styles.dayContainer]}>
-      <View style={styles.headContainer}>
-      <LottieView style={{
-          width:40,height:40,
-        } }source={require('../assets/icons8-sun.json')} autoPlay loop />
-      </View>
-      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
-      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
-      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
-      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
-      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Weather: </Text>
-      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
-      {nightOnTop ? null : (
-        <View style={styles.weatherIcon}>
-          {renderWeatherIcon(weather.weather[0].main)}
-        </View>
-      )}
-    </View>
-    <View style={[styles.containers, nightOnTop ? styles.dayContainer : styles.nightContainer]}>
-      <View style={styles.headContainer}>
-      <LottieView style={{
-          width:40,height:40,
-        } }source={require('../assets/lottie.json')} autoPlay loop />
-      </View>
-      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Temp: </Text>
-      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
-      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>NightHum: </Text>
-      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
-      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>night Weather: </Text>
-      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
-      {nightOnTop ? (
-        <View style={styles.weatherIcon}>
-          {renderWeatherIcon(weather.weather[0].main)}
-        </View>
-      ) : null}
-    </View>
-  </TouchableOpacity>
-</View>
 
-      )}
-      {data && (
+        </View>
+        <View style={styles.suggestionsContainer}>
+          {suggestions.map((item, index) => (
+            <TouchableOpacity key={index} onPress={() => handleSuggestionPress(item)}>
+              <Text style={styles.suggestion}>{item}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {weather && (
+          <View style={styles.daynight}>
+            <TouchableOpacity onPress={toggleContainersOrder} style={styles.containerWrapper}>
+              <View style={[styles.containers, { backgroundColor: color }, nightOnTop ? styles.nightContainer : styles.dayContainer]}>
+                <View style={styles.headContainer}>
+                  <LottieView style={{
+                    width: 40, height: 40,
+                  }} source={require('../assets/icons8-sun.json')} autoPlay loop />
+                </View>
+                <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperature </Text>
+                <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
+                <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Humidity </Text>
+                <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
+                <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Weather </Text>
+                <Text style={[styles.daydata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
+                {nightOnTop ? null : (
+                  <View style={styles.weatherIcon}>
+                    {renderWeatherIcon(weather.weather[0].main)}
+                  </View>
+                )}
+              </View>
+              <View style={[styles.containers, nightOnTop ? styles.dayContainer : styles.nightContainer]}>
+                <View style={styles.headContainer}>
+                  <LottieView style={{
+                    width: 40, height: 40,
+                  }} source={require('../assets/lottie.json')} autoPlay loop />
+                </View>
+                <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Temp </Text>
+                <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{weather.main.temp}°C</Text>
+                <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Hum </Text>
+                <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{weather.main.humidity}%</Text>
+                <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Weather </Text>
+                <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{weather.weather[0].description}</Text>
+                {nightOnTop ? (
+                  <View style={styles.weatherIcon}>
+                    {renderWeatherIcon(weather.weather[0].main)}
+                  </View>
+                ) : null}
+              </View>
+            </TouchableOpacity>
+          </View>
+
+        )}
+        {data && (
+          <View style={styles.dataContainer}>
+            <View style={styles.headContainer}>
+              <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Sensor Data</Text>
+            </View>
+            <View style={styles.datalab1}>
+              <View >
+                <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Temperature</Text>
+                <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Temperature}°C</Text></View>
+              <View>
+                <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity</Text>
+                <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Humidity}%</Text>
+              </View>
+            </View>
+          </View>
+
+        )}
+
+        {data && (
+          <View style={styles.locationContainer}>
+            <View style={styles.headContainer}>
+
+            </View>
+            <MapView style={styles.map} region={mapRegion}>
+
+              {markerCoordinate && <Marker coordinate={markerCoordinate} title='Marker' />}
+            </MapView>
+
+            <View style={styles.buttonmap}>
+              <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 16 }]}>GPS Weather                       </Text>
+              <TouchableOpacity style={styles.searchButton} onPress={clearMarker}>
+                <Image style={{ height: 23, width: 23 }} source={require('../assets/ree.png')} />
+
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.searchButton} onPress={handleGoBack}>
+                <Image style={{ height: 28, width: 30, alignSelf: 'flex-end' }} source={require('../assets/lo.png')} />
+
+              </TouchableOpacity>
+
+            </View>
+
+          </View>
+        )}
+
+        {userWeather && (
+          <View style={styles.userdaynight}>
+            <TouchableOpacity onPress={toggleContainersOrder} style={styles.containerWrapper}>
+              <View style={[styles.containers, { backgroundColor: color }, nightOnTop ? styles.nightContainer : styles.dayContainer]}>
+                <View style={styles.headContainer}>
+                  <LottieView style={{
+                    width: 40, height: 40,
+                  }} source={require('../assets/icons8-sun.json')} autoPlay loop />
+                </View>
+                <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperature </Text>
+                <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
+                <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Humidity </Text>
+                <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.humidity}%</Text>
+                <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Weather </Text>
+                <Text style={[styles.daydata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{userWeather.weather[0].description}</Text>
+                {nightOnTop ? null : (
+                  <View style={styles.weatherIcon}>
+                    {renderWeatherIcon(userWeather.weather[0].main)}
+                  </View>
+                )}
+              </View>
+              <View style={[styles.containers, nightOnTop ? styles.dayContainer : styles.nightContainer]}>
+                <View style={styles.headContainer}>
+                  <LottieView style={{
+                    width: 40, height: 40,
+                  }} source={require('../assets/lottie.json')} autoPlay loop />
+                </View>
+                <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Temp </Text>
+                <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
+                <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Hum </Text>
+                <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.humidity}%</Text>
+                <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Weather </Text>
+                <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{userWeather.weather[0].description}</Text>
+                {nightOnTop ? (
+                  <View style={styles.weatherIcon}>
+                    {renderuserWeatherIcon(userWeather.weather[0].main)}
+                  </View>
+                ) : null}
+              </View>
+            </TouchableOpacity>
+          </View>
+
+        )}
+
         <View style={styles.dataContainer}>
-          <View style={styles.headContainer}>
-            <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Sensor Data</Text>
-          </View>
-          <View style={styles.datalab1}>
-          <View >
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Temperature</Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Temperature}°C</Text></View>
-          <View>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity</Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{data.Humidity}%</Text>
-          </View>
-        </View>
-        </View>
-    
-      )}
 
-{data && (
-        <View style={styles.locationContainer}>
-          <View style={styles.headContainer}>
-           
-          </View>
-         <MapView style={styles.map} region={mapRegion}>
-         
-         {markerCoordinate && <Marker coordinate={markerCoordinate} title='Marker' />}
-         </MapView>
-        
-        <View style={styles.buttonmap}>
-        <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 16 }]}>GPS Weather                       </Text>     
-  <TouchableOpacity style={styles.searchButton} onPress={clearMarker}>
-        <Image style={{ height: 30, width: 30 }} source={require('../assets/ree.png')} />
 
-        </TouchableOpacity>
-       
-          <TouchableOpacity style={styles.searchButton} onPress={handleGoBack}>
-        <Image style={{ height: 38, width: 30 ,alignSelf:'flex-end'}} source={require('../assets/lo.png')} />
+          <Text style={[styles.emailHeader, {
+            color: 'white', fontFamily: 'rakkas-regular', fontSize: 24,
+            alignItems: 'center',
+            textAlign: 'center',
+            alignSelf: 'center',
+            marginTop: -2,
+            color: 'white',
 
-        </TouchableOpacity>
- 
-       </View>
-   
+          }]}>For Future Update</Text>
+
+          <View style={styles.emailcontent}>
+            <TextInput
+              placeholder='add_your_email@example.com'
+              value={email}
+              placeholderTextColor="#D9D9D9"
+              onChangeText={(text) => setEmail(text)}
+              style={[styles.email]}
+
+
+            />
+
+            <TouchableOpacity style={styles.emailButton} onPress={dataAddon}>
+              <Image style={{ height: 20, width: 20 }} source={require('../assets/icons8-done-48.png')} />
+
+            </TouchableOpacity>
+
+          </View>{submissionMessage !== '' && (
+            <Text style={{ alignSelf: 'center', marginTop: -10, color: submissionMessage.includes('Email') ? 'cyan' : 'red' }}>
+              {submissionMessage}</Text>)}
         </View>
-      )}
-      
- {userWeather &&(
-        <View style={styles.daynight}>
-  <TouchableOpacity onPress={toggleContainersOrder} style={styles.containerWrapper}>
-    <View style={[styles.containers, { backgroundColor: color }, nightOnTop ? styles.nightContainer : styles.dayContainer]}>
-      <View style={styles.headContainer}>
-      <LottieView style={{
-          width:40,height:40,
-        } }source={require('../assets/icons8-sun.json')} autoPlay loop />
+
+
+
+
+
+      </View><View style={styles.footer}>
+
+
+
+
+        <Text style={[styles.footerText, { fontFamily: 'rakkas-regular', color: 'white', }]}>weatherSense v1.0.3        </Text>
+        <Text style={[styles.footerText, { fontFamily: 'rakkas-regular', color: 'cyan', }]}>@devbyshaf</Text>
       </View>
-      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
-      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
-      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
-      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.humidity}%</Text>
-      <Text style={[styles.daylabel, { fontFamily: 'rakkas-regular' }]}>Weather: </Text>
-      <Text style={[styles.daydata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{userWeather.weather[0].description}</Text>
-      {nightOnTop ? null : (
-        <View style={styles.weatherIcon}>
-          {renderWeatherIcon(userWeather.weather[0].main)}
-        </View>
-      )}
-    </View>
-    <View style={[styles.containers, nightOnTop ? styles.dayContainer : styles.nightContainer]}>
-      <View style={styles.headContainer}>
-      <LottieView style={{
-          width:40,height:40,
-        } }source={require('../assets/lottie.json')} autoPlay loop />
-      </View>
-      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>Night Temp: </Text>
-      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
-      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>NightHum: </Text>
-      <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.humidity}%</Text>
-      <Text style={[styles.nightlabel, { fontFamily: 'rakkas-regular' }]}>night Weather: </Text>
-       <Text style={[styles.nightdata, { fontFamily: 'rakkas-regular', textTransform: 'capitalize' }]}>{userWeather.weather[0].description}</Text>
-       {nightOnTop ? (
-        <View style={styles.weatherIcon}>
-          {renderuserWeatherIcon(userWeather.weather[0].main)}
-        </View>
-      ) : null}
-    </View>
-  </TouchableOpacity>
-</View>
 
-      )}
-         
-{/* 
-{ data && (
-   <View style={styles.dataContainer}>
-          <View style={styles.headContainer}>
-            <Text style={[styles.label, { fontFamily: 'rakkas-regular', fontSize: 24 }]}>Sensor Data: </Text>
-          </View>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Temperature: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>{userWeather.main.temp}°C</Text>
-          <Text style={[styles.label, { fontFamily: 'rakkas-regular' }]}>Humidity: </Text>
-          <Text style={[styles.data, { fontFamily: 'rakkas-regular' }]}>%</Text>
-        </View>
-      )} */}
-    </View>
     </ScrollView>
   );
 };
@@ -374,12 +438,45 @@ const FetchData = ({ navigation }) => {
 export default FetchData;
 
 const styles = StyleSheet.create({
+
+  footer: {
+    flex: 1,
+    backgroundColor: 'rgba(220, 250, 220, 0.1)',
+    alignItems: 'center',
+    borderRadius: 15,
+    flexDirection: 'row',
+    justifyContent: 'center',
+
+    width: "100%"
+  },
+
   container: {
     flex: 1,
     backgroundColor: 'rgba(100, 20, 40, 0.9)',
     alignItems: 'center',
     paddingTop: 40,
-    paddingBottom:270
+    paddingBottom: 120
+  },
+  dataContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(100, 20, 40, 0.9)',
+    alignItems: 'center',
+    paddingTop: 40,
+    paddingBottom: 0
+
+  },
+
+  emailcontent: {
+
+
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Align horizontally to the center
+    marginBottom: 15,
+    width: '100%',
+    borderBottomWidth: 1, // Add a border only at the bottom
+    borderBottomColor: 'white', // Color of the border
+    paddingBottom: 5, // P
   },
   backgroundImage: {
     position: 'absolute',
@@ -388,12 +485,22 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
   },
- headerContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center', // Add this line to center the items horizontally
-  marginBottom: 10,
-},
+
+  email: {
+    fontSize: 15,
+    alignItems: 'center',
+    textAlign: 'center',
+    marginTop: -2,
+    color: 'white',
+
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // Add this line to center the items horizontally
+    marginBottom: 10,
+
+  },
   header: {
     fontSize: 40,
     textAlign: 'center',
@@ -401,18 +508,18 @@ const styles = StyleSheet.create({
     fontFamily: 'rakkas-regular',
     marginRight: 'auto',
   },
-  buttonmap:{
-flexDirection:'row',
-justifyContent:'center',
-alignItems:'center',
-width:'100%',
-marginBottom:-3,
-backgroundColor: 'rgba(220, 220, 230, 0)',
+  buttonmap: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: -3,
+    backgroundColor: 'rgba(220, 220, 230, 0)',
   },
   creditButton: {
-    position:'absolute',
-    top:63,
-    right:10,
+    position: 'absolute',
+    top: 63,
+    right: 10,
     padding: 4,
     borderRadius: 5,
     marginLeft: 10,
@@ -440,11 +547,14 @@ backgroundColor: 'rgba(220, 220, 230, 0)',
   searchButton: {
     padding: 2,
     marginLeft: -7,
+  }, emailButton: {
+    padding: 2,
+    marginLeft: -20,
   },
   suggestionsContainer: {
     width: '60%',
     marginBottom: 10,
-    
+
   },
   suggestion: {
     backgroundColor: 'rgba(220, 220, 230, 0.4)',
@@ -465,11 +575,23 @@ backgroundColor: 'rgba(220, 220, 230, 0)',
     alignItems: 'center',
     flexDirection: 'row'
   },
-  map:{
-    width:Dimensions.get('window').width*0.69,
-    height:Dimensions.get('window').height*0.3,
+
+  emailHeader: {
+    // backgroundColor: 'rgba(70, 155, 130, 0.3)',
+    padding: 0,
+    width: 'auto',
+    borderRadius: 0,
+    marginBottom: 4,
     alignSelf: 'center',
-    borderRadius: 10, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
+  map: {
+    width: Dimensions.get('window').width * 0.69,
+    height: Dimensions.get('window').height * 0.3,
+    alignSelf: 'center',
+    borderRadius: 10,
   },
   dataContainer: {
     backgroundColor: 'rgba(70, 155, 130, 0.3)',
@@ -493,63 +615,71 @@ backgroundColor: 'rgba(220, 220, 230, 0)',
     paddingRight: 2,
     width: '72%',
     borderRadius: 10,
-    marginBottom: -20,
+    marginBottom: 10,
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
 
   },
 
+  userdaynight: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20
+    , marginTop: -27
+  },
+
   daynight: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom:20
+    marginBottom: 20
   },
   containerWrapper: {
     flexDirection: 'row', // Stack containers vertically
     paddingHorizontal: 10,
-    
-    zIndex:0,
-    elevation:10,
-    margin:20,
-    width:'70%'
+
+    zIndex: 0,
+    elevation: 10,
+    margin: 20,
+    width: '70%'
   },
   containers: {
     backgroundColor: 'rgba(0, 0, 0, 1)',
     paddingHorizontal: 0,
     paddingVertical: -20,
-    width:'10%',
+    width: '10%',
     borderRadius: 10,
     marginBottom: -1,
     justifyContent: 'center',
     alignItems: 'flex-start',
-    elevation:5
-    
+    elevation: 5
+
   },
 
   dayContainer: {
-    paddingTop:10,
-    paddingBottom:10,
+    paddingTop: 10,
+    paddingBottom: 10,
     flex: 3, // Occupies 2/3 of the available space
-marginHorizontal:-15,
-elevation:4,
-zIndex:2,
-alignItems:'flex-start',paddingLeft:10,
+    marginHorizontal: -15,
+    elevation: 4,
+    zIndex: 2,
+    alignItems: 'flex-start', paddingLeft: 10,
   },
 
   nightContainer: {
-textAlign:'right',
-    paddingTop:10,
-    paddingBottom:10,
-    paddingLeft:10,
+    textAlign: 'right',
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 10,
     flex: 1, // Occupies 1/3 of the available space
-    marginHorizontal:-15,
-    elevation:0,
-    alignItems:'flex-start'
-    
+    marginHorizontal: -15,
+    elevation: 0,
+    alignItems: 'flex-start'
+
   },
-  
+
   daylabel: {
     fontSize: 10,
     textAlign: 'center',
@@ -567,32 +697,32 @@ textAlign:'right',
   daydata: {
     fontSize: 10,
     textAlign: 'center',
-  
+
     color: 'rgba(255, 0, 0, 1)',
     flexDirection: 'row'
   },
 
   label: {
     fontSize: 15,
-alignItems:'center',
-textAlign: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
     marginTop: -2,
     color: 'white',
 
-    
+
   },
-  datalab1:{
-    flexDirection:'row',
-    justifyContent:'space-around',
-    alignItems:'center',
-    width:'100%',
+  datalab1: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '100%',
   },
   data: {
     fontSize: 12,
     textAlign: 'center',
     marginTop: -3,
     color: 'cyan',
-  
+
   },
   nightdata: {
     fontSize: 10,
@@ -610,7 +740,7 @@ textAlign: 'center',
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-   
+
   },
 
 });
